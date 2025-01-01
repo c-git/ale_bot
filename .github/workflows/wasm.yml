@@ -17,7 +17,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  test:
+  test_in_browser:
     name: Test WASM in browser
     runs-on: ubuntu-latest
     steps:
@@ -30,7 +30,7 @@ jobs:
       - name: Run tests
         run: wasm-pack test --headless --chrome
 
-  clippy:
+  clippy_wasm:
     name: Clippy WASM
     runs-on: ubuntu-latest
     steps:
@@ -42,8 +42,8 @@ jobs:
       - name: Linting
         run: cargo clippy --target="wasm32-unknown-unknown" -- -D warnings
     
-  trunk:
-    name: trunk
+  trunk_build:
+    name: trunk build
     runs-on: ubuntu-latest
     steps:
       - uses: wykies/checkout@main
