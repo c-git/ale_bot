@@ -38,6 +38,7 @@ jobs:
       - uses: wykies/checkout@main
       - uses: wykies/setup-rust-toolchain@main
         with:
+          toolchain: nightly
           components: rustfmt
       - name: Enforce formatting
         run: cargo fmt --all --check
