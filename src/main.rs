@@ -107,8 +107,7 @@ async fn main() {
         .build();
 
     let token = var("TOKEN").expect("Missing `TOKEN` env var, see README for more information.");
-    let intents =
-        serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::MESSAGE_CONTENT;
+    let intents = serenity::GatewayIntents::non_privileged();
 
     let client = serenity::ClientBuilder::new(token, intents)
         .framework(framework)
