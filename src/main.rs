@@ -45,5 +45,9 @@ async fn main() {
         .framework(framework)
         .await;
 
-    client.unwrap().start().await.unwrap()
+    client
+        .expect("failed to create client")
+        .start()
+        .await
+        .expect("failed to start client")
 }
