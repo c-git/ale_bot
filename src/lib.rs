@@ -10,8 +10,7 @@ use tracing_subscriber::{
     prelude::*,
 };
 
-#[tokio::main]
-async fn main() {
+pub async fn start_bot() {
     tracing_subscriber::registry()
         .with(fmt::layer().with_span_events(FmtSpan::NEW | FmtSpan::CLOSE))
         .with(
