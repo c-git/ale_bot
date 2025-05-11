@@ -1,4 +1,16 @@
-use crate::{Context, Error};
+use std::{collections::HashMap, sync::Mutex};
+
+// Types used by all command functions
+type Context<'a> = poise::Context<'a, Data, anyhow::Error>;
+
+// Custom user data passed to all command functions
+pub struct Data {
+    pub votes: Mutex<HashMap<String, u32>>,
+}
+
+pub fn commands_list() -> Vec<poise::Command<Data, anyhow::Error>> {
+    vec![help(), vote(), getvotes()]
+}
 
 /// Show this help menu
 #[poise::command(prefix_command, track_edits, slash_command)]
@@ -7,12 +19,12 @@ pub async fn help(
     #[description = "Specific command to show help about"]
     #[autocomplete = "poise::builtins::autocomplete_command"]
     command: Option<String>,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     poise::builtins::help(
         ctx,
         command.as_deref(),
         poise::builtins::HelpConfiguration {
-            extra_text_at_bottom: "This is an example bot made to showcase features of my custom Discord bot framework",
+            extra_text_at_bottom: "POC Bot for ALE",
             ..Default::default()
         },
     )
@@ -27,7 +39,7 @@ pub async fn help(
 pub async fn vote(
     ctx: Context<'_>,
     #[description = "What to vote for"] choice: String,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     // Lock the Mutex in a block {} so the Mutex isn't locked across an await point
     let num_votes = {
         let mut hash_map = ctx.data().votes.lock().unwrap();
@@ -52,7 +64,7 @@ pub async fn vote(
 pub async fn getvotes(
     ctx: Context<'_>,
     #[description = "Choice to retrieve votes for"] choice: Option<String>,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     if let Some(choice) = choice {
         let num_votes = *ctx.data().votes.lock().unwrap().get(&choice).unwrap_or(&0);
         let response = match num_votes {

@@ -2,6 +2,7 @@
 
 mod commands;
 
+use commands::commands_list;
 use poise::serenity_prelude as serenity;
 use std::{collections::HashMap, env::var, sync::Mutex};
 use tracing::info;
@@ -10,15 +11,6 @@ use tracing_subscriber::{
     fmt::{self, format::FmtSpan},
     prelude::*,
 };
-
-// Types used by all command functions
-type Error = Box<dyn std::error::Error + Send + Sync>;
-type Context<'a> = poise::Context<'a, Data, Error>;
-
-// Custom user data passed to all command functions
-pub struct Data {
-    votes: Mutex<HashMap<String, u32>>,
-}
 
 #[tokio::main]
 async fn main() {
@@ -35,7 +27,7 @@ async fn main() {
     // FrameworkOptions contains all of poise's configuration option in one struct
     // Every option can be omitted to use its default value
     let options = poise::FrameworkOptions {
-        commands: vec![commands::help(), commands::vote(), commands::getvotes()],
+        commands: commands_list(),
         ..Default::default()
     };
 
@@ -49,7 +41,7 @@ async fn main() {
                 );
                 info!("{connect_msg}");
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
-                Ok(Data {
+                Ok(commands::Data {
                     votes: Mutex::new(HashMap::new()),
                 })
             })
