@@ -4,6 +4,12 @@ mod commands;
 
 use poise::serenity_prelude as serenity;
 use std::{collections::HashMap, env::var, sync::Mutex};
+use tracing::info;
+use tracing_subscriber::{
+    EnvFilter,
+    fmt::{self, format::FmtSpan},
+    prelude::*,
+};
 
 // Types used by all command functions
 type Error = Box<dyn std::error::Error + Send + Sync>;
@@ -16,7 +22,15 @@ pub struct Data {
 
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::registry()
+        .with(fmt::layer().with_span_events(FmtSpan::ACTIVE))
+        .with(
+            EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| EnvFilter::new("zbus=warn,serenity=warn,info")),
+        )
+        .init();
+
+    info!("Bot version is {}", env!("CARGO_PKG_VERSION"));
 
     // FrameworkOptions contains all of poise's configuration option in one struct
     // Every option can be omitted to use its default value
@@ -26,9 +40,14 @@ async fn main() {
     };
 
     let framework = poise::Framework::builder()
-        .setup(move |ctx, _ready, framework| {
+        .setup(move |ctx, ready, framework| {
             Box::pin(async move {
-                println!("Logged in as {}", _ready.user.name);
+                let connect_msg = format!(
+                    "{} is connected! Version: {}",
+                    ready.user.name,
+                    env!("CARGO_PKG_VERSION")
+                );
+                info!("{connect_msg}");
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
                 Ok(Data {
                     votes: Mutex::new(HashMap::new()),
