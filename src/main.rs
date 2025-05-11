@@ -15,7 +15,7 @@ use tracing_subscriber::{
 #[tokio::main]
 async fn main() {
     tracing_subscriber::registry()
-        .with(fmt::layer().with_span_events(FmtSpan::ACTIVE))
+        .with(fmt::layer().with_span_events(FmtSpan::NEW | FmtSpan::CLOSE))
         .with(
             EnvFilter::try_from_default_env()
                 .unwrap_or_else(|_| EnvFilter::new("zbus=warn,serenity=warn,info")),
