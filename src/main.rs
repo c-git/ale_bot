@@ -4,7 +4,7 @@ mod commands;
 
 use commands::commands_list;
 use poise::serenity_prelude as serenity;
-use std::{collections::HashMap, env::var, sync::Mutex};
+use std::env::var;
 use tracing::info;
 use tracing_subscriber::{
     EnvFilter,
@@ -41,9 +41,7 @@ async fn main() {
                 );
                 info!("{connect_msg}");
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
-                Ok(commands::Data {
-                    votes: Mutex::new(HashMap::new()),
-                })
+                Ok(commands::Data::default())
             })
         })
         .options(options)
