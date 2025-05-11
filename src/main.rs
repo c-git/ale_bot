@@ -1,5 +1,3 @@
-#![warn(clippy::str_to_string)]
-
 mod commands;
 
 use commands::commands_list;
