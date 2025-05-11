@@ -33,8 +33,6 @@ pub async fn help(
 }
 
 /// Vote for something
-///
-/// Enter `~vote pumpkin` to vote for pumpkins
 #[poise::command(prefix_command, slash_command)]
 pub async fn vote(
     ctx: Context<'_>,
@@ -56,10 +54,6 @@ pub async fn vote(
 /// Retrieve number of votes
 ///
 /// Retrieve the number of votes either in general, or for a specific choice:
-/// ```
-/// ~getvotes
-/// ~getvotes pumpkin
-/// ```
 #[poise::command(prefix_command, track_edits, aliases("votes"), slash_command)]
 pub async fn getvotes(
     ctx: Context<'_>,
