@@ -3,10 +3,7 @@
 use human_time::ToHumanTimeString as _;
 use tracing::{info, instrument};
 
-use crate::{
-    Context,
-    commands::{tracing_handler_end, tracing_handler_start},
-};
+use crate::{Context, commands::tracing_handler_start};
 
 /// Responds with "pong"
 #[poise::command(slash_command, prefix_command, track_edits)]
@@ -22,7 +19,7 @@ pub async fn ping(ctx: Context<'_>) -> anyhow::Result<()> {
         info!(msg);
         ctx.say(msg).await?;
     }
-    tracing_handler_end()
+    Ok(())
 }
 
 #[poise::command(
@@ -45,7 +42,7 @@ pub async fn uptime(ctx: Context<'_>) -> anyhow::Result<()> {
             .to_human_time_string(),
     )
     .await?;
-    tracing_handler_end()
+    Ok(())
 }
 
 /// Show help menu
@@ -60,7 +57,7 @@ pub async fn help(
     tracing_handler_start(&ctx).await;
     let config = Default::default();
     poise::builtins::help(ctx, command.as_deref(), config).await?;
-    tracing_handler_end()
+    Ok(())
 }
 
 /// Returns the version of the bot
@@ -71,5 +68,5 @@ pub async fn version(ctx: Context<'_>) -> anyhow::Result<()> {
     let msg = format!("Bot version is {}", env!("CARGO_PKG_VERSION"));
     info!(msg);
     ctx.say(msg).await?;
-    tracing_handler_end()
+    Ok(())
 }

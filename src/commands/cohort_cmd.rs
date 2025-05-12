@@ -6,7 +6,7 @@ use tracing::instrument;
 use self::interested_list::register;
 use crate::{
     Context, Data,
-    commands::{call_to_parent_command, is_auth, tracing_handler_end, tracing_handler_start},
+    commands::{call_to_parent_command, is_auth, tracing_handler_start},
 };
 
 mod interested_list;
@@ -32,7 +32,7 @@ pub async fn start_event(ctx: Context<'_>) -> anyhow::Result<()> {
     tracing_handler_start(&ctx).await;
     ctx.reply("Request started").await?;
     do_start_event(ctx, ctx.channel_id(), ctx.data()).await?;
-    tracing_handler_end()
+    Ok(())
 }
 
 #[instrument(skip(_cache_http, _data))]

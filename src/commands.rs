@@ -25,12 +25,6 @@ async fn tracing_handler_start(ctx: &Context<'_>) {
     );
 }
 
-/// Used to mark the end
-fn tracing_handler_end() -> anyhow::Result<()> {
-    info!("END");
-    Ok(())
-}
-
 /// Standardized response to a call to a parent function (not callable by slash command)
 async fn call_to_parent_command(ctx: Context<'_>) -> anyhow::Result<()> {
     error!(

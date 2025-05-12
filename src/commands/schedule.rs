@@ -7,7 +7,7 @@ use tracing::{info, instrument};
 
 use crate::{
     Context,
-    commands::{call_to_parent_command, is_auth, tracing_handler_end, tracing_handler_start},
+    commands::{call_to_parent_command, is_auth, tracing_handler_start},
     model::schedule::{
         Objective, OutcomeCreateScheduledTask, ScheduledTaskId, ScheduledTasks, UnixTimestamp,
     },
@@ -63,7 +63,7 @@ Note: the command expects **ONLY** the number part",
         )
         .await?;
     }
-    tracing_handler_end()
+    Ok(())
 }
 
 #[poise::command(prefix_command, slash_command, track_edits, aliases("disp"))]
@@ -77,7 +77,7 @@ pub async fn display(ctx: Context<'_>) -> anyhow::Result<()> {
         .description(tasks_as_string);
     let builder = CreateReply::default().embed(embed);
     ctx.send(builder).await?;
-    tracing_handler_end()
+    Ok(())
 }
 
 #[poise::command(
@@ -102,5 +102,5 @@ pub async fn cancel(
         scheduled_task.objective, scheduled_task.desired_execution_timestamp
     ))
     .await?;
-    tracing_handler_end()
+    Ok(())
 }

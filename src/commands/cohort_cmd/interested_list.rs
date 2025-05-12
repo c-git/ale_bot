@@ -2,7 +2,7 @@
 
 use crate::{
     Context, Data,
-    commands::{is_auth, tracing_handler_end, tracing_handler_start},
+    commands::{is_auth, tracing_handler_start},
     model::{
         cohort::interested_list::{InterestedList, ScoreValue},
         user_serde::UserRecordSupport as _,
@@ -47,7 +47,7 @@ pub async fn remove(ctx: Context<'_>) -> anyhow::Result<()> {
         },
     )
     .await?;
-    tracing_handler_end()
+    Ok(())
 }
 
 #[poise::command(prefix_command, slash_command, aliases("disp"))]
@@ -56,7 +56,7 @@ pub async fn remove(ctx: Context<'_>) -> anyhow::Result<()> {
 pub async fn leader_board(ctx: Context<'_>) -> anyhow::Result<()> {
     tracing_handler_start(&ctx).await;
     display_scores(&ctx).await?;
-    tracing_handler_end()
+    Ok(())
 }
 
 #[poise::command(prefix_command, slash_command, track_edits)]
@@ -93,7 +93,7 @@ pub async fn message(ctx: Context<'_>, #[rest] msg: Option<String>) -> anyhow::R
         },
     )
     .await?;
-    tracing_handler_end()
+    Ok(())
 }
 
 #[poise::command(hide_in_help, prefix_command, guild_only = true, check = "is_auth")]
@@ -103,7 +103,7 @@ pub async fn reset(ctx: Context<'_>) -> anyhow::Result<()> {
     tracing_handler_start(&ctx).await;
     do_scores_reset(&ctx, ctx.channel_id(), ctx.data()).await?;
     ctx.reply("Scores reset").await?;
-    tracing_handler_end()
+    Ok(())
 }
 
 #[instrument(skip(cache_http, data))]
@@ -116,7 +116,7 @@ pub async fn do_scores_reset(
     channel_id.say(&cache_http, "Scores before reset").await?;
     display_scores_channel(&cache_http, channel_id, data).await?;
     data.inner.cohort.scores_reset()?;
-    tracing_handler_end()
+    Ok(())
 }
 
 async fn do_set_score(ctx: Context<'_>, score: ScoreValue) -> anyhow::Result<()> {
@@ -126,7 +126,7 @@ async fn do_set_score(ctx: Context<'_>, score: ScoreValue) -> anyhow::Result<()>
         .cohort
         .score_set(ctx.author_to_user_record().await, score)?;
     display_scores_with_msg(&ctx, "Score set").await?;
-    tracing_handler_end()
+    Ok(())
 }
 
 #[instrument(skip(ctx))]
@@ -140,7 +140,7 @@ pub async fn do_display_scores<S: Into<String> + Debug>(
         builder = builder.content(msg);
     }
     ctx.send(builder).await?;
-    tracing_handler_end()
+    Ok(())
 }
 
 #[instrument(skip(ctx))]
@@ -191,5 +191,5 @@ pub async fn display_scores_channel(
     info!("START");
     let builder = display_generate_message(data)?;
     channel_id.send_message(&cache_http, builder).await?;
-    tracing_handler_end()
+    Ok(())
 }
