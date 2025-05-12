@@ -94,7 +94,7 @@ pub async fn start_bot() {
 
     info!("Bot version is {}", env!("CARGO_PKG_VERSION"));
 
-    dotenv::dotenv().ok(); // Load environment variables
+    dotenvy::dotenv().ok(); // Load environment variables
 
     // Load startup configuration
     let startup_config = StartupConfig::new();

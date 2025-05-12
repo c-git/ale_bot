@@ -13,7 +13,7 @@ Proof of Concept discord bot for [A Life Engineered](https://www.youtube.com/@AL
 # Configuration
 
 At startup the application attempts to load environment variables from `.env`.
-See the [dotenv crate](https://crates.io/crates/dotenv)'s page for more info on contents for the file.
+See the [dotenvy crate](https://crates.io/crates/dotenvy)'s page for more info on contents for the file.
 
 - `TOKEN` [req] - provides the discord token.
 - `COHORT_CHANNEL` [req] - specifies the channel ID to use for cohort notifications.
