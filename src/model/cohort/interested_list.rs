@@ -18,7 +18,7 @@ type ScoresCache = BTreeMap<ScoreValue, Vec<UserName>>;
 ///
 /// Assumes that each user has at most one record
 #[derive(serde::Serialize, serde::Deserialize, Default)]
-pub struct Scores {
+pub struct InterestedList {
     pub message: String,
     records: Vec<ScoreRecord>,
     #[serde(skip)]
@@ -31,7 +31,7 @@ pub struct ScoreRecord {
     score: ScoreValue,
 }
 
-impl Scores {
+impl InterestedList {
     pub const DISPLAY_TITLE: &'static str = "UNRANKED CHALLENGE";
     const DATA_KEY: &'static str = "scores";
     pub fn set_score(&mut self, user: UserRecord, score: ScoreValue) -> anyhow::Result<()> {
@@ -168,4 +168,4 @@ impl Scores {
     }
 }
 
-impl Resettable for Scores {}
+impl Resettable for InterestedList {}

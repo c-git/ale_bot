@@ -12,11 +12,11 @@ use std::sync::{Arc, Mutex};
 
 use crate::config::SharedConfig;
 
-use self::{schedule::ScheduledTasks, unranked::Unranked};
+use self::{cohort::Cohort, schedule::ScheduledTasks};
 
+pub mod cohort;
 pub mod one_based_id;
 pub mod schedule;
-pub mod unranked;
 pub mod user_serde;
 
 /// User data, which is stored and accessible in all command invocations, cheap to clone uses an Arc
@@ -26,7 +26,7 @@ pub struct Data {
 }
 
 pub struct DataInner {
-    pub unranked: Unranked,
+    pub cohort: Cohort,
     pub ctx: poise::serenity_prelude::Context,
     pub schedule_tasks: Arc<Mutex<ScheduledTasks>>,
     pub shared_config: &'static SharedConfig,
@@ -39,7 +39,7 @@ impl Data {
     ) -> Self {
         let result = Data {
             inner: Arc::new(DataInner {
-                unranked: Unranked::new(shared_config).await,
+                cohort: Cohort::new(shared_config).await,
                 shared_config,
                 schedule_tasks: Arc::new(Mutex::new(ScheduledTasks::new(shared_config).await)),
                 ctx,

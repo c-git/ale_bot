@@ -4,7 +4,7 @@ use crate::{
     Context, Data,
     commands::{is_auth, tracing_handler_end, tracing_handler_start},
     model::{
-        unranked::scores::{ScoreValue, Scores},
+        cohort::interested_list::{InterestedList, ScoreValue},
         user_serde::UserRecordSupport as _,
     },
     sanitize_markdown,
@@ -22,9 +22,9 @@ use tracing::{info, instrument};
     track_edits,
     subcommands("set", "remove", "leader_board", "message", "reset")
 )]
-#[instrument(name = "unranked-score", skip(ctx))]
+#[instrument(name = "cohort-register", skip(ctx))]
 /// Commands related to scoring during the event and if called using `bbur score` sets the score
-pub async fn score(ctx: Context<'_>, value: ScoreValue) -> anyhow::Result<()> {
+pub async fn register(ctx: Context<'_>, value: ScoreValue) -> anyhow::Result<()> {
     do_set_score(ctx, value).await
 }
 
@@ -36,7 +36,7 @@ pub async fn remove(ctx: Context<'_>) -> anyhow::Result<()> {
     let did_remove = ctx
         .data()
         .inner
-        .unranked
+        .cohort
         .score_remove(&ctx.author_to_user_record().await)?;
     display_scores_with_msg(
         &ctx,
@@ -82,7 +82,7 @@ pub async fn message(ctx: Context<'_>, #[rest] msg: Option<String>) -> anyhow::R
     let msg = sanitize_markdown(msg.unwrap_or_default());
     ctx.data()
         .inner
-        .unranked
+        .cohort
         .scores_message(ctx.author_id_number(), msg)?;
     display_scores_with_msg(
         &ctx,
@@ -115,7 +115,7 @@ pub async fn do_scores_reset(
     info!("START");
     channel_id.say(&cache_http, "Scores before reset").await?;
     display_scores_channel(&cache_http, channel_id, data).await?;
-    data.inner.unranked.scores_reset()?;
+    data.inner.cohort.scores_reset()?;
     tracing_handler_end()
 }
 
@@ -123,7 +123,7 @@ async fn do_set_score(ctx: Context<'_>, score: ScoreValue) -> anyhow::Result<()>
     tracing_handler_start(&ctx).await;
     ctx.data()
         .inner
-        .unranked
+        .cohort
         .score_set(ctx.author_to_user_record().await, score)?;
     display_scores_with_msg(&ctx, "Score set").await?;
     tracing_handler_end()
@@ -174,9 +174,9 @@ fn display_generate_message(data: &Data) -> anyhow::Result<CreateMessage> {
 #[instrument(skip(data))]
 fn display_generate_embed(data: &Data) -> anyhow::Result<CreateEmbed> {
     info!("START");
-    let scores_as_string = data.inner.unranked.scores_as_string()?;
+    let scores_as_string = data.inner.cohort.scores_as_string()?;
     let embed = CreateEmbed::new()
-        .title(Scores::DISPLAY_TITLE)
+        .title(InterestedList::DISPLAY_TITLE)
         .description(scores_as_string);
     info!("END");
     Ok(embed)

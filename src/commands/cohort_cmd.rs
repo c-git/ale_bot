@@ -3,13 +3,13 @@
 use poise::serenity_prelude::{CacheHttp, ChannelId};
 use tracing::instrument;
 
-use self::score::score;
+use self::interested_list::register;
 use crate::{
     Context, Data,
     commands::{call_to_parent_command, is_auth, tracing_handler_end, tracing_handler_start},
 };
 
-mod score;
+mod interested_list;
 
 #[poise::command(
     prefix_command,
@@ -17,7 +17,7 @@ mod score;
     track_edits,
     aliases("ur"),
     subcommand_required,
-    subcommands("score", "start_event")
+    subcommands("register", "start_event")
 )]
 #[instrument(name = "unranked", skip(ctx))]
 /// Commands related to the Unranked Challenge [aliases("ur")]

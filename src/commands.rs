@@ -6,15 +6,15 @@ use tracing::{error, info, instrument, warn};
 use crate::{
     AuthorPreferredDisplay as _, Context, Data,
     commands::{
+        cohort_cmd::unranked,
         general::{help, ping, uptime},
         schedule::schedule,
-        unranked_cmd::unranked,
     },
 };
-pub use unranked_cmd::do_start_event;
+pub use cohort_cmd::do_start_event;
+mod cohort_cmd;
 mod general;
 mod schedule;
-mod unranked_cmd;
 
 /// Common info added to tracing for functions
 async fn tracing_handler_start(ctx: &Context<'_>) {

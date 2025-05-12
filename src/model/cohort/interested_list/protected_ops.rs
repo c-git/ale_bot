@@ -6,24 +6,24 @@ use std::sync::MutexGuard;
 use crate::{
     Resettable as _,
     model::{
-        unranked::Unranked,
+        cohort::Cohort,
         user_serde::{UserIdNumber, UserRecord},
     },
 };
 
-use super::{ScoreValue, Scores};
+use super::{InterestedList, ScoreValue};
 
-impl Unranked {
+impl Cohort {
     /// Serves as the link to the private function that returns the guard
-    fn guard_scores(&self) -> anyhow::Result<MutexGuard<Scores>> {
+    fn guard_scores(&self) -> anyhow::Result<MutexGuard<InterestedList>> {
         match self.scores.lock() {
             Ok(guard) => Ok(guard),
             Err(e) => anyhow::bail!("failed to lock mutex because '{e}"),
         }
     }
 
-    fn save_scores(&self, data: &Scores) -> anyhow::Result<()> {
-        self.save(Scores::DATA_KEY, data)
+    fn save_scores(&self, data: &InterestedList) -> anyhow::Result<()> {
+        self.save(InterestedList::DATA_KEY, data)
     }
 
     pub fn score_set(&self, user: UserRecord, score: ScoreValue) -> anyhow::Result<()> {
