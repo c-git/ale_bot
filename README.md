@@ -12,6 +12,8 @@ Proof of Concept discord bot for [A Life Engineered](https://www.youtube.com/@AL
 
 # Configuration
 
+For local runs please create and "fill" a .env file
+
 - `TOKEN` [req] - provides the discord token.
 - `COHORT_CHANNEL` [req] - specifies the channel ID to use for cohort notifications.
 - `TEST_GUILD_ID` - provides the GUILD ID of the test server.
