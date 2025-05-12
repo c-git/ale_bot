@@ -18,3 +18,4 @@ Proof of Concept discord bot for [A Life Engineered](https://www.youtube.com/@AL
   If set it enables test mode.
   When in test mode slash commands are only registered on the test server not globally because they are available more quickly for testing.
 - `STARTUP_MSG_CHANNEL` - If set bot will send a message in this channel when it starts up.
+- `AUTH_ROLE_ID` - The role ID that can run privileged commands (Not Used right now).
