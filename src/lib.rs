@@ -1,17 +1,87 @@
-mod commands;
-mod startup;
+//! This is the library for the application. The majority of the logic can be found here
+//! It is split into two main parts. The parts that receive commands from discord [`commands`] and
+//! the part that handles the actual logic of what to do in the [`model`]
+
+#![warn(unused_crate_dependencies)]
 
 use anyhow::Context as _;
-use commands::{Data, commands_list};
 use poise::serenity_prelude as serenity;
-use secrecy::{ExposeSecret, SecretString};
-use startup::{StartupConfig, parse_value_from_env_expect};
-use tracing::{info, warn};
+use secrecy::ExposeSecret;
+use secrets::KeyName;
+use tracing::{info, instrument, warn};
 use tracing_subscriber::{
     EnvFilter,
     fmt::{self, format::FmtSpan},
     prelude::*,
 };
+
+pub use self::{
+    commands::commands_list,
+    config::{SharedConfig, StartupConfig},
+    model::Data,
+};
+
+mod commands;
+mod config;
+mod model;
+mod secrets;
+
+/// Type used by poise framework as the context when commands are triggered
+type Context<'a> = poise::Context<'a, Data, anyhow::Error>;
+
+trait RemoveElement<T: PartialEq> {
+    /// Returns true iff the element was found and removed
+    fn remove_element(&mut self, element: &T) -> bool;
+}
+
+impl<T: PartialEq> RemoveElement<T> for Vec<T> {
+    fn remove_element(&mut self, element: &T) -> bool {
+        let index = self
+            .iter()
+            .enumerate()
+            .find_map(|(i, x)| if x == element { Some(i) } else { None });
+        if let Some(i) = index {
+            self.remove(i);
+            true
+        } else {
+            false
+        }
+    }
+}
+
+trait AuthorPreferredDisplay {
+    async fn author_preferred_display(&self) -> String;
+}
+
+impl AuthorPreferredDisplay for Context<'_> {
+    async fn author_preferred_display(&self) -> String {
+        match self.author_member().await {
+            Some(member) => member.display_name().to_string(),
+            None => self.author().name.clone(),
+        }
+    }
+}
+
+trait Resettable: Default {
+    fn reset(&mut self) {
+        *self = Default::default();
+    }
+}
+
+/// Removes identified problems with inputs
+/// Not trying to remove all markdown just the parts that are
+/// likely to cause issues. More will be added as needed
+#[must_use]
+#[instrument]
+fn sanitize_markdown(s: String) -> String {
+    const PATTERNS: [&str; 4] = ["**", "__", "```", "\n"];
+    let mut result = s;
+    for pattern in PATTERNS.iter() {
+        result = result.replace(pattern, "");
+    }
+    info!(result);
+    result
+}
 
 pub async fn start_bot() {
     tracing_subscriber::registry()
@@ -24,9 +94,13 @@ pub async fn start_bot() {
 
     info!("Bot version is {}", env!("CARGO_PKG_VERSION"));
 
+    dotenvy::dotenv().ok(); // Load environment variables
+
     // Load startup configuration
     let startup_config = StartupConfig::new();
     info!(?startup_config);
+
+    let shared_config = SharedConfig::try_new().expect("failed to created shared_config");
 
     // FrameworkOptions contains all of poise's configuration option in one struct
     // Every option can be omitted to use its default value
@@ -67,15 +141,17 @@ pub async fn start_bot() {
                 } else{
                     warn!("Not sending connection notification because `bot_startup_channel` not set");
                 }
+                let data = Data::new(shared_config, ctx.clone()).await;
                 info!("END OF SETUP CLOSURE");
-                Ok(Data::default())
+                Ok(data)
             })
         })
         .options(options)
         .build();
 
-    let token: SecretString =
-        parse_value_from_env_expect::<String, std::convert::Infallible>("TOKEN").into();
+    let token = KeyName::DiscordToken
+        .get_secret_string()
+        .expect("failed to get discord token");
     let intents = serenity::GatewayIntents::non_privileged();
 
     let client = serenity::ClientBuilder::new(token.expose_secret(), intents)
