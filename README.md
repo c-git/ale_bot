@@ -12,7 +12,9 @@ Proof of Concept discord bot for [A Life Engineered](https://www.youtube.com/@AL
 
 # Configuration
 
-- `TOKEN` - provides the discord token.
-- `TEST_GUILD_ID` - provides the GUILD ID of the test server and enables test mode.
+- `TOKEN` [req] - provides the discord token.
+- `COHORT_CHANNEL` [req] - specifies the channel ID to use for cohort notifications.
+- `TEST_GUILD_ID` - provides the GUILD ID of the test server.
+  If set it enables test mode.
   When in test mode slash commands are only registered on the test server not globally because they are available more quickly for testing.
 - `STARTUP_MSG_CHANNEL` - If set bot will send a message in this channel when it starts up.
