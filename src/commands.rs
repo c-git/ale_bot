@@ -1,5 +1,3 @@
-use std::sync::Mutex;
-
 use tracing::{info, instrument};
 
 // Types used by all command functions
@@ -7,12 +5,7 @@ type Context<'a> = poise::Context<'a, Data, anyhow::Error>;
 
 // Custom user data passed to all command functions
 #[derive(Debug, Default)]
-pub struct Data {
-    inner: Mutex<DataInner>,
-}
-
-#[derive(Debug, Default)]
-struct DataInner {}
+pub struct Data {}
 
 pub fn commands_list() -> Vec<poise::Command<Data, anyhow::Error>> {
     vec![help(), ping(), version()]

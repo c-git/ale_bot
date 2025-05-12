@@ -4,7 +4,8 @@ mod startup;
 use anyhow::Context as _;
 use commands::{Data, commands_list};
 use poise::serenity_prelude as serenity;
-use startup::StartupConfig;
+use secrecy::{ExposeSecret, SecretString};
+use startup::{StartupConfig, parse_value_from_env_expect};
 use tracing::{info, warn};
 use tracing_subscriber::{
     EnvFilter,
@@ -25,6 +26,7 @@ pub async fn start_bot() {
 
     // Load startup configuration
     let startup_config = StartupConfig::new();
+    info!(?startup_config);
 
     // FrameworkOptions contains all of poise's configuration option in one struct
     // Every option can be omitted to use its default value
@@ -72,11 +74,11 @@ pub async fn start_bot() {
         .options(options)
         .build();
 
-    let token =
-        std::env::var("TOKEN").expect("Missing `TOKEN` env var, see README for more information.");
+    let token: SecretString =
+        parse_value_from_env_expect::<String, std::convert::Infallible>("TOKEN").into();
     let intents = serenity::GatewayIntents::non_privileged();
 
-    let client = serenity::ClientBuilder::new(token, intents)
+    let client = serenity::ClientBuilder::new(token.expose_secret(), intents)
         .framework(framework)
         .await;
 

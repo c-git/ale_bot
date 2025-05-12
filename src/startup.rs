@@ -36,3 +36,16 @@ where
             }
         })
 }
+
+pub fn parse_value_from_env_expect<R, E>(env_key: &str) -> R
+where
+    E: Debug,
+    R: FromStr<Err = E>,
+{
+    match parse_value_from_env(env_key) {
+        Some(x) => x,
+        None => panic!(
+            "Missing required environment variable `{env_key}`, see README for more information."
+        ),
+    }
+}
